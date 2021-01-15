@@ -1,7 +1,6 @@
  # MinecraftWorldBackup
  A simple command line application to back up Minecraft worlds without mods.  
- 
- *Version 1.0*  
+  
  **Currently Windows Only**
  
  ----
