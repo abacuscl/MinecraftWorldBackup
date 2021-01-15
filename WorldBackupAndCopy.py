@@ -12,8 +12,9 @@ DEFAULT_SAVEDIR = f"{Path.home()}\\Appdata\\Roaming\\.minecraft\\saves"
 DEFAULT_BACKUPDIR = f"{Path.home()}\\Appdata\\Roaming\\.minecraft\\saves\\backups"
 DEFAULT_FREQ = 5
 DEFAULT_KEPT = 5
-VERSION = "v1.0"
+VERSION = "v1.1.0"
 
+app_dir = ""
 save_dir = ""
 backup_dir = ""
 backup_freq = -1
@@ -61,10 +62,10 @@ def run():
 
             if usrin == "config":
                 print("\nOpening config file...\n")
-                os.startfile("config.cfg")
+                os.startfile(f"{app_path}\\config.cfg")
             elif usrin == "regenerate":
                 print("\nRenegerating config file...")
-                os.remove("config.cfg")
+                os.remove(f"{app_path}\\config.cfg")
                 generateConfig()
             elif usrin == "recreate":
                 print("\nRecreating backups folder...")
@@ -83,25 +84,48 @@ def run():
 
 #Initializes the config and backup folder for use
 def init():
+    global runnable
 
-    #Generate config file if it doesn't already exist
-    if not os.path.isfile("config.cfg"):
-        generateConfig()
-    loadConfig()
-    verifyConfig()
+    if makeAppDir() == 0:
+        #Generate config file if it doesn't already exist
+        if not os.path.isfile(f"{app_dir}\\config.cfg"):
+            generateConfig()
+        loadConfig()
+        verifyConfig()
 
-    #If making a backup folder fails, then prevent the app from running
-    if not makeBackupFolder() == 0:
-        runnable = False
-
+        #If making a backup folder fails, then prevent the app from running
+        if not makeBackupFolder() == 0:
+            runnable = False
+    else:
+        print("Unable to make the app directory in the user folder. Exiting...")
+        time.sleep(3)
+        sys.exit()
+        
 #Prints a welcome text
 def printHello():
     print("Minecraft Save Backup Application")
-    print(f"Author: X; {VERSION} [CLIENT]\n")
+    print(f"Author: abacuscl; {VERSION}\n")
+
+#Creates the application directory
+def makeAppDir():
+    global app_dir
+    
+    if verifyLocation(f"{Path.home()}"):
+        try:
+            os.mkdir(f"{Path.home()}\\MCWorldBackup")
+            app_dir = f"{Path.home()}\\MCWorldBackup"
+            return 0
+        except FileExistsError:
+            app_dir = f"{Path.home()}\\MCWorldBackup"
+            return 0
+        except Exception as e:
+            return 1
+    else:
+        return 1
 
 #Creates and populates the config file with default values
 def generateConfig():
-    with open("config.cfg", "w") as f:
+    with open(f"{app_dir}\\config.cfg", "w") as f:
         f.write("Minecraft Save Directory\n")
         f.write(f"{DEFAULT_SAVEDIR}\n\n")
         f.write("Backup To Directory\n")
@@ -121,7 +145,7 @@ def loadConfig():
     global ver_kept
     global runnable
 
-    with open("config.cfg") as f:
+    with open(f"{app_dir}\\config.cfg") as f:
         count = 1
 
         #Run through the entire file
@@ -463,7 +487,7 @@ def resetCLI():
 def isValidCommand(command):
     if command == "quit":
         return True
-    elif command == "back":
+    elif command == "back" and not current_mode == 0:
         return True
     elif command == "config":
         return True
@@ -485,7 +509,7 @@ def executeCommand(command):
 
 #Opens the config file, works only on Windows   
 def openConfig():
-    os.startfile("config.cfg")
+    os.startfile(f"{app_dir}\\config.cfg")
     print("\nApp must be restarted for changes to take effect\n")
 
 '''
