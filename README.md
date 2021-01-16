@@ -95,9 +95,11 @@
  
  ----
  ## Bug Reports
- To open a bug report, create an issue on the repository page.
+ To open a bug report, create an issue on the repository page.  
+ Please attach the error.log file when submitting a bug report along with a description of the
+ bug and how it can be replicated.
  
  ----
  ## Ideas to Implement
- - [ ] Export errors to an error.log file to make bugfixes easier
+ - [x] Export errors to an error.log file to make bugfixes easier
  - [ ] Make the python files into an executable
