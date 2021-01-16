@@ -57,6 +57,12 @@
  
  3. Open the MinecraftWorldBackup folder and double click on WorldBackupAndCopy.py
  
+ Or:
+ 
+ 1. Clone the WorldBackupAndCopy.exe file
+ 
+ 2. Double click on the .exe file
+ 
  ----
  ## Usage
  
@@ -101,5 +107,5 @@
  
  ----
  ## Ideas to Implement
- - [x] Export errors to an error.log file to make bugfixes easier
- - [ ] Make the python files into an executable
+ - [x] Export errors to an error.log file to make bugfixes easier  
+ - [x] Make the python files into an executable
