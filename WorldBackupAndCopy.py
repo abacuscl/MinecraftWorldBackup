@@ -119,6 +119,8 @@ def makeAppDir():
             app_dir = f"{Path.home()}\\MCWorldBackup"
             return 0
         except Exception as e:
+            with open("error.log", "a") as f:
+                f.write(f"Error occurred in method makeAppDir():\n{e}\n\n")
             return 1
     else:
         return 1
@@ -192,19 +194,21 @@ def loadConfig():
                         runnable = False
 
                 #If it is line 6, then attempt to cast the line as a float, convert to seconds, and save as backup frequency
-                #If it fails, then nothing happens because it will check for reading errors later
+                #If it fails, then nothing happens and the error log is appended
                 elif count == 6:
                     try:
                         backup_freq = (float(line) * 60)
-                    except:
-                        pass
+                    except Exception as e:
+                        with open("error.log", "a") as f:
+                            f.write(f"Error occurred in method loadConfig():\n{e}\n\n")
 
                 #If it is line 8, then attempt to cast the line as an integer and save as the kept versions
                 elif count == 8:
                     try:
                         ver_kept = int(line)
-                    except:
-                        pass
+                    except Exception as e:
+                        with open("error.log", "a") as f:
+                            f.write(f"Error occurred in method loadConfig():\n{e}\n\n")
 
             #If all else fails, then skip the line
             else:
@@ -243,6 +247,8 @@ def makeBackupFolder():
     except Exception as e:
         print("Could not make the backup folder:")
         print(e)
+        with open("error.log", "a") as f:
+            f.write(f"Error occurred in method makeBackupFolder():\n{e}\n\n")
         return 1
 
 #Verifies the location of a file path by reading/writing to a test file and then deleting it
@@ -360,6 +366,8 @@ def copyWorldFiles(dest, typ):
                 except Exception as e:
                     print("\nCould not delete the old backup version:")
                     print(e)
+                    with open("error.log", "a") as f:
+                        f.write(f"Error occurred in method copyWorldFiles():\n{e}\n\n")
 
         #Attempt to copy the folder from the source path to the destination path
         try:
@@ -381,6 +389,8 @@ def copyWorldFiles(dest, typ):
                 else:
                     print("\nCould not copy the save file:")
                     print(pe)
+                with open("error.log", "a") as f:
+                    f.write(f"Error occurred in method copyWorldFiles():\n{pe}\n\n")
         except Exception as e:
             if typ == "backup":
                 print("\nCould not backup the save file:")
@@ -388,6 +398,8 @@ def copyWorldFiles(dest, typ):
             else:
                 print("\nCould not copy the save file:")
                 print(e)
+            with open("error.log", "a") as f:
+                f.write(f"Error occurred in method copyWorldFiles():\n{e}\n\n")
 
     #Used only for autosaving;
     #If the directory becomes unavailable, then halt autosave and disable running the program
