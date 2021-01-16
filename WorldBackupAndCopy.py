@@ -62,15 +62,15 @@ def run():
 
             if usrin == "config":
                 print("\nOpening config file...\n")
-                os.startfile(f"{app_path}\\config.cfg")
+                os.startfile(f"{app_dir}\\config.cfg")
             elif usrin == "regenerate":
                 print("\nRenegerating config file...")
-                os.remove(f"{app_path}\\config.cfg")
+                os.remove(f"{app_dir}\\config.cfg")
                 generateConfig()
             elif usrin == "recreate":
                 print("\nRecreating backups folder...")
                 if makeBackupFolder() == 0:
-                    print("\nSuccessfully recreated backups folder\n")
+                    print("Successfully recreated backups folder\n")
             elif usrin == "reload":
                 loadConfig()
                 verifyConfig()
@@ -453,7 +453,7 @@ def autoBackupSave():
                     quit_autosave()
                     if runnable == True:
                         print("\nAuto backup shut down successfully...")
-                    time.sleep(3)
+                        time.sleep(3)
                     resetCLI()
                     break
 
