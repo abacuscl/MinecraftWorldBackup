@@ -12,8 +12,9 @@ DEFAULT_SAVEDIR = f"{Path.home()}\\Appdata\\Roaming\\.minecraft\\saves"
 DEFAULT_BACKUPDIR = f"{Path.home()}\\Appdata\\Roaming\\.minecraft\\saves\\backups"
 DEFAULT_FREQ = 5
 DEFAULT_KEPT = 5
-VERSION = "v1.0"
+VERSION = "v1.1.0"
 
+app_dir = ""
 save_dir = ""
 backup_dir = ""
 backup_freq = -1
@@ -61,15 +62,15 @@ def run():
 
             if usrin == "config":
                 print("\nOpening config file...\n")
-                os.startfile("config.cfg")
+                os.startfile(f"{app_dir}\\config.cfg")
             elif usrin == "regenerate":
                 print("\nRenegerating config file...")
-                os.remove("config.cfg")
+                os.remove(f"{app_dir}\\config.cfg")
                 generateConfig()
             elif usrin == "recreate":
                 print("\nRecreating backups folder...")
                 if makeBackupFolder() == 0:
-                    print("\nSuccessfully recreated backups folder\n")
+                    print("Successfully recreated backups folder\n")
             elif usrin == "reload":
                 loadConfig()
                 verifyConfig()
@@ -83,25 +84,50 @@ def run():
 
 #Initializes the config and backup folder for use
 def init():
+    global runnable
 
-    #Generate config file if it doesn't already exist
-    if not os.path.isfile("config.cfg"):
-        generateConfig()
-    loadConfig()
-    verifyConfig()
+    if makeAppDir() == 0:
+        #Generate config file if it doesn't already exist
+        if not os.path.isfile(f"{app_dir}\\config.cfg"):
+            generateConfig()
+        loadConfig()
+        verifyConfig()
 
-    #If making a backup folder fails, then prevent the app from running
-    if not makeBackupFolder() == 0:
-        runnable = False
-
+        #If making a backup folder fails, then prevent the app from running
+        if not makeBackupFolder() == 0:
+            runnable = False
+    else:
+        print("Unable to make the app directory in the user folder. Exiting...")
+        time.sleep(3)
+        sys.exit()
+        
 #Prints a welcome text
 def printHello():
     print("Minecraft Save Backup Application")
-    print(f"Author: X; {VERSION} [CLIENT]\n")
+    print(f"Author: abacuscl; {VERSION}\n")
+
+#Creates the application directory
+def makeAppDir():
+    global app_dir
+    
+    if verifyLocation(f"{Path.home()}"):
+        try:
+            os.mkdir(f"{Path.home()}\\MCWorldBackup")
+            app_dir = f"{Path.home()}\\MCWorldBackup"
+            return 0
+        except FileExistsError:
+            app_dir = f"{Path.home()}\\MCWorldBackup"
+            return 0
+        except Exception as e:
+            with open("error.log", "a") as f:
+                f.write(f"Error occurred in method makeAppDir():\n{e}\n\n")
+            return 1
+    else:
+        return 1
 
 #Creates and populates the config file with default values
 def generateConfig():
-    with open("config.cfg", "w") as f:
+    with open(f"{app_dir}\\config.cfg", "w") as f:
         f.write("Minecraft Save Directory\n")
         f.write(f"{DEFAULT_SAVEDIR}\n\n")
         f.write("Backup To Directory\n")
@@ -121,7 +147,7 @@ def loadConfig():
     global ver_kept
     global runnable
 
-    with open("config.cfg") as f:
+    with open(f"{app_dir}\\config.cfg") as f:
         count = 1
 
         #Run through the entire file
@@ -168,19 +194,21 @@ def loadConfig():
                         runnable = False
 
                 #If it is line 6, then attempt to cast the line as a float, convert to seconds, and save as backup frequency
-                #If it fails, then nothing happens because it will check for reading errors later
+                #If it fails, then nothing happens and the error log is appended
                 elif count == 6:
                     try:
                         backup_freq = (float(line) * 60)
-                    except:
-                        pass
+                    except Exception as e:
+                        with open("error.log", "a") as f:
+                            f.write(f"Error occurred in method loadConfig():\n{e}\n\n")
 
                 #If it is line 8, then attempt to cast the line as an integer and save as the kept versions
                 elif count == 8:
                     try:
                         ver_kept = int(line)
-                    except:
-                        pass
+                    except Exception as e:
+                        with open("error.log", "a") as f:
+                            f.write(f"Error occurred in method loadConfig():\n{e}\n\n")
 
             #If all else fails, then skip the line
             else:
@@ -219,6 +247,8 @@ def makeBackupFolder():
     except Exception as e:
         print("Could not make the backup folder:")
         print(e)
+        with open("error.log", "a") as f:
+            f.write(f"Error occurred in method makeBackupFolder():\n{e}\n\n")
         return 1
 
 #Verifies the location of a file path by reading/writing to a test file and then deleting it
@@ -336,6 +366,8 @@ def copyWorldFiles(dest, typ):
                 except Exception as e:
                     print("\nCould not delete the old backup version:")
                     print(e)
+                    with open("error.log", "a") as f:
+                        f.write(f"Error occurred in method copyWorldFiles():\n{e}\n\n")
 
         #Attempt to copy the folder from the source path to the destination path
         try:
@@ -357,6 +389,8 @@ def copyWorldFiles(dest, typ):
                 else:
                     print("\nCould not copy the save file:")
                     print(pe)
+                with open("error.log", "a") as f:
+                    f.write(f"Error occurred in method copyWorldFiles():\n{pe}\n\n")
         except Exception as e:
             if typ == "backup":
                 print("\nCould not backup the save file:")
@@ -364,6 +398,8 @@ def copyWorldFiles(dest, typ):
             else:
                 print("\nCould not copy the save file:")
                 print(e)
+            with open("error.log", "a") as f:
+                f.write(f"Error occurred in method copyWorldFiles():\n{e}\n\n")
 
     #Used only for autosaving;
     #If the directory becomes unavailable, then halt autosave and disable running the program
@@ -417,7 +453,7 @@ def autoBackupSave():
                     quit_autosave()
                     if runnable == True:
                         print("\nAuto backup shut down successfully...")
-                    time.sleep(3)
+                        time.sleep(3)
                     resetCLI()
                     break
 
@@ -463,7 +499,7 @@ def resetCLI():
 def isValidCommand(command):
     if command == "quit":
         return True
-    elif command == "back":
+    elif command == "back" and not current_mode == 0:
         return True
     elif command == "config":
         return True
@@ -485,7 +521,7 @@ def executeCommand(command):
 
 #Opens the config file, works only on Windows   
 def openConfig():
-    os.startfile("config.cfg")
+    os.startfile(f"{app_dir}\\config.cfg")
     print("\nApp must be restarted for changes to take effect\n")
 
 '''
