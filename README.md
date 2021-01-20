@@ -59,7 +59,7 @@
  
  Or:
  
- 1. Clone the WorldBackupAndCopy.exe file
+ 1. Clone the WorldBackupAndCopy.exe file from the dist folder
  
  2. Double click on the .exe file
  
