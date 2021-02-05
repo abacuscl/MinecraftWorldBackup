@@ -107,5 +107,5 @@
  
  ----
  ## Ideas to Implement
- - [x] Export errors to an error.log file to make bugfixes easier  
- - [x] Make the python files into an executable
+ - [x] Export errors to an error.log file to make bugfixes easier (Release 1.1.0)
+ - [x] Make the python files into an executable (Release 1.1.0)
